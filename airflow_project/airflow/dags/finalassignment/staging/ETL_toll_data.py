@@ -48,8 +48,10 @@ with DAG(
         Vehicle code - Category of the vehicle as per the toll plaza.
 
         """
+
         all_columns = ["row_id", "timestamp", "anonymized_vehicle_number", "vehicle_type", "number_of_axles", "vehicle_code"]
         desired_columns = ["row_id", "timestamp","anonymized_vehicle_number", "vehicle_type"]
+
         # Option 1
         vehicle_csv_df = pandas.read_csv("vehicle-data.csv", header=None)
         desired_columns_df = vehicle_csv_df[[0, 1, 2, 3]]
@@ -87,18 +89,22 @@ with DAG(
         Tollplaza code - Tollplaza accounting code.
 
         """
+
         all_columns = ["row_id", "timestamp", "anonymized_vehicle_number", "vehicle_type", "number_of_axles", "tollplaza_id","tollplaza_code"]
         desired_columns = ["number_of_axles", "tollplaza_id", "tollplaza_code"]
+
         # Option 1
         tollplaza_tsv_df = pandas.read_table("tollplaza-data.tsv", header=None)
         desired_columns_df = tollplaza_tsv_df[[4, 5, 6]]
         desired_columns_df.to_csv("tsv_data.csv", index=False, header=desired_columns)
 
         # Option 2
+        # TODO: TEST
         # tollplaza_tsv_df = pandas.read_table("tollplaza-data.tsv", header=None, names=all_columns)
         # tollplaza_tsv_df.to_csv("tsv_data.csv", index=False, columns=desired_columns)
 
         # Option 3
+        # TODO: TEST
         # tollplaza_tsv_df = pandas.read_table("tollplaza-data.tsv", header=None, names=all_columns)
         # desired_columns_df = tollplaza_tsv_df[desired_columns]
         # desired_columns_df.to_csv("tsv_data.csv", index=False)
