@@ -68,9 +68,6 @@ with DAG(
 
     extract_data_from_csv_task = extract_data_from_csv()
 
-    unzip_data_task >> extract_data_from_csv_task
-
-
 
     @task(task_id="extract_data_from_tsv")
     def extract_data_from_tsv():
@@ -111,9 +108,6 @@ with DAG(
 
     extract_data_from_tsv_task = extract_data_from_tsv()
 
-    unzip_data_task >> extract_data_from_tsv_task
-
-
 
     @task(task_id="extract_data_from_fixed_width")
     def extract_data_from_fixed_width():
@@ -150,36 +144,67 @@ with DAG(
 
     extract_data_from_fixed_width = extract_data_from_fixed_width()
 
+
+    # DAG dependencies
+    """
+    Establish initial DAG task dependencies
+    The data must be unzipped before any of the files are extracted
+    """
+    unzip_data_task >> extract_data_from_csv_task
+
+    unzip_data_task >> extract_data_from_tsv_task
+
     unzip_data_task >> extract_data_from_fixed_width
 
 
 
     @task(task_id="consolidate_data")
     def consolidate_data():
-        # This task should create a single csv file named extracted_data.csv by combining data from the following files:
-        # - csv_data.csv
-        # - tsv_data.csv
-        # - fixed_width_data.csv
-        #
-        # The final csv file should use the fields in the order given below:
-        #
-        # Rowid, Timestamp, Anonymized Vehicle number, Vehicle type, Number of axles, Tollplaza id, Tollplaza code, Type of Payment code, and Vehicle Code
-        #
-        # Hint: Use the bash paste command.
-        #
-        # `paste` command merges lines of files.
-        #
-        # Example : `paste file1 file2 > newfile`
-        #
-        # The above command merges the columns of the files file1 and file2 and sends the output to newfile.
-        #
-        # You can use the command `man paste` to explore more.
-        #
-        # For now, you can trust the rows all correspond to the same data. You can also join on Row ID.
+        """
+        This task should create a single csv file named extracted_data.csv by combining data from the following files:
+        - csv_data.csv
+        - tsv_data.csv
+        - fixed_width_data.csv
+
+        The final csv file should use the fields in the order given below:
+
+        Rowid, Timestamp, Anonymized Vehicle number, Vehicle type, Number of axles, Tollplaza id, Tollplaza code, Type of Payment code, and Vehicle Code
+
+        Hint: Use the bash paste command.
+
+        `paste` command merges lines of files.
+
+        Example : `paste file1 file2 > newfile`
+
+        The above command merges the columns of the files file1 and file2 and sends the output to newfile.
+
+        You can use the command `man paste` to explore more.
+
+        For now, you can trust the rows all correspond to the same data. You can also join on Row ID.
+        """
 
 
+    # DAG dependencies
+    """
+    Establish second layer of DAG dependencies
+    All data must be extracted and put into CSVs before it is consolidated
+    """
+    extract_data_from_csv_task >> consolidate_data
+
+    extract_data_from_tsv_task >> consolidate_data
+
+    extract_data_from_fixed_width >> consolidate_data
 
 
     @task(task_id="transform_data")
     def transform_data():
-        # This task should transform the vehicle_type field in extracted_data.csv into capital letters and save it into a file named transformed_data.csv in the staging directory.
+        """
+        This task should transform the vehicle_type field in extracted_data.csv into capital letters and save it into a file named transformed_data.csv in the staging directory.
+        """
+
+    # DAG dependencies
+    """
+    Establish final DAG dependency
+    All data must be consolidated before it is finally transformed
+    """
+    consolidate_data >> transform_data
