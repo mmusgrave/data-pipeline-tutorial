@@ -117,8 +117,36 @@ with DAG(
 
     @task(task_id="extract_data_from_fixed_width")
     def extract_data_from_fixed_width():
-        # This task should extract the fields Type of Payment code, and Vehicle Code from the fixed width file payment-data.txt and save it into a file named fixed_width_data.csv.
-        pandas.read_fwf("payment-data.txt")
+        """
+        This task should extract the fields Type of Payment code, and Vehicle Code from the fixed width file payment-data.txt and save it into a file named fixed_width_data.csv.
+
+        payment-data.txt is a fixed width file. Each field occupies a fixed number of characters.
+
+        It has the below 7 fields
+
+        Rowid  - This uniquely identifies each row. This is consistent across all the three files.
+        Timestamp - What time did the vehicle pass through the toll gate.
+        Anonymized Vehicle number - Anonymized registration number of the vehicle
+        Tollplaza id - Id of the toll plaza
+        Tollplaza code - Tollplaza accounting code.
+        Type of Payment code - Code to indicate the type of payment. Example : Prepaid, Cash.
+        Vehicle Code -  Category of the vehicle as per the toll plaza.
+
+        """
+
+        all_columns = ["row_id", "timestamp", "anonymized_vehicle_number", "tollplaza_id", "tollplaza_code", "payment_code_type", "vehicle_code"]
+        desired_columns = ["payment_code_type", "vehicle_code"]
+        colspecs = [(5, 6), (7, 31), (32, 38), (43, 47), (48, 57), (58, 61), (62,-1)]
+
+        # Option 1
+        fixed_width_payment_df = pandas.read_fwf("payment-data.txt", colspecs=colspecs, header=None, names=all_columns)
+        desired_columns_df = fixed_width_payment_df[desired_columns]
+        desired_columns_df.to_csv("fixed_width_data.csv", index=False)
+
+        # Option 2
+        # TODO: TEST
+        # fixed_width_payment_df = pandas.read_fwf("payment-data.txt", colspecs=colspecs, header=None, names=all_columns)
+        # fixed_width_payment_df.to_csv("fixed_width_data.csv", index=False, columns=desired_columns)
 
     extract_data_from_fixed_width = extract_data_from_fixed_width()
 
