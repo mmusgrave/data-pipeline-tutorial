@@ -88,7 +88,7 @@ with DAG(
 
         """
         all_columns = ["row_id", "timestamp", "anonymized_vehicle_number", "vehicle_type", "number_of_axles", "tollplaza_id","tollplaza_code"]
-        desired_columns = ["number_of_axles", "tollplaza_id","tollplaza_code"]
+        desired_columns = ["number_of_axles", "tollplaza_id", "tollplaza_code"]
         # Option 1
         tollplaza_tsv_df = pandas.read_table("tollplaza-data.tsv", header=None)
         desired_columns_df = tollplaza_tsv_df[[4, 5, 6]]
