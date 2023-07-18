@@ -1,5 +1,6 @@
 import logging
 import shutil
+import pandas
 
 from airflow import DAG
 from airflow.decorators import task
@@ -29,17 +30,91 @@ with DAG(
         # https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DB0250EN-SkillsNetwork/labs/Final%20Assignment/tolldata.tgz
         shutil.unpack_archive("tolldata.tgz")
 
+    unzip_data_task = unzip_data()
+
     @task(task_id="extract_data_from_csv")
     def extract_data_from_csv():
-        # This task should extract the fields Rowid, Timestamp, Anonymized Vehicle number, and Vehicle type from the vehicle-data.csv file and save them into a file named csv_data.csv.
+        """
+        This task should extract the fields Rowid, Timestamp, Anonymized Vehicle number, and Vehicle type from the vehicle-data.csv file and save them into a file named csv_data.csv.
+
+        vehicle-data.csv is a comma-separated values file.
+        It has the below 6 fields
+
+        Rowid  - This uniquely identifies each row. This is consistent across all the three files.
+        Timestamp - What time did the vehicle pass through the toll gate.
+        Anonymized Vehicle number - Anonymized registration number of the vehicle
+        Vehicle type - Type of the vehicle
+        Number of axles - Number of axles of the vehicle
+        Vehicle code - Category of the vehicle as per the toll plaza.
+
+        """
+        # Option 1
+        csv_df = pandas.read_csv("vehicle-data.csv", header=None)
+        desired_columns_df = csv_df[[0, 1, 2, 3]]
+        desired_columns_df.to_csv("csv_data.csv", index=False, header=["row_id", "timestamp","anonymized_vehicle_number", "vehicle_type"])
+
+        # Option 2
+        # csv_df = pandas.read_csv("vehicle-data.csv", header=None, names=["row_id", "timestamp", "anonymized_vehicle_number", "vehicle_type", "number_of_axles", "vehicle_code"])
+        # csv_df.to_csv("csv_data.csv", index=False, columns=["row_id", "timestamp", "anonymized_vehicle_number", "vehicle_type"])
+
+        # Option 3
+        # csv_df = pandas.read_csv("vehicle-data.csv", header=None, names=["row_id", "timestamp", "anonymized_vehicle_number", "vehicle_type", "number_of_axles", "vehicle_code"])
+        # desired_columns_df = csv_df[["row_id", "timestamp", "anonymized_vehicle_number", "vehicle_type"]]
+        # desired_columns_df.to_csv("csv_data.csv", index=False)
+
+    extract_data_from_csv_task = extract_data_from_csv()
+
+    unzip_data_task >> extract_data_from_csv_task
+
+
 
     @task(task_id="extract_data_from_tsv")
     def extract_data_from_tsv():
-        # This task should extract the fields Number of axles, Tollplaza id, and Tollplaza code from the tollplaza-data.tsv file and save it into a file named tsv_data.csv.
+        """
+        This task should extract the fields Number of axles, Tollplaza id, and Tollplaza code from the tollplaza-data.tsv file and save it into a file named tsv_data.csv.
+
+        tollplaza-data.tsv is a tab-separated values file.
+        It has the below 7 fields
+
+        Rowid  - This uniquely identifies each row. This is consistent across all the three files.
+        Timestamp - What time did the vehicle pass through the toll gate.
+        Anonymized Vehicle number - Anonymized registration number of the vehicle
+        Vehicle type - Type of the vehicle
+        Number of axles - Number of axles of the vehicle
+        Tollplaza id - Id of the toll plaza
+        Tollplaza code - Tollplaza accounting code.
+
+        """
+        # Option 1
+        tsv_df = pandas.read_table("tollplaza-data.tsv", header=None)
+        desired_columns_df = tsv_df[[4, 5, 6]]
+        desired_columns_df.to_csv("tsv_data.csv", index=False, header=["number_of_axles", "tollplaza_id","tollplaza_code"])
+
+        # Option 2
+        # tsv_df = pandas.read_table("tollplaza-data.tsv", header=None, names=["row_id", "timestamp", "anonymized_vehicle_number", "vehicle_type", "number_of_axles", "tollplaza_id","tollplaza_code"])
+        # tsv_df.to_csv("tsv_data.csv", index=False, columns=["number_of_axles", "tollplaza_id","tollplaza_code"])
+
+        # Option 3
+        # tsv_df = pandas.read_table("tollplaza-data.tsv", header=None, names=["row_id", "timestamp", "anonymized_vehicle_number", "vehicle_type", "number_of_axles", "tollplaza_id","tollplaza_code"])
+        # desired_columns_df = tsv_df[["number_of_axles", "tollplaza_id","tollplaza_code""]]
+        # desired_columns_df.to_csv("tsv_data.csv", index=False)
+
+    extract_data_from_tsv_task = extract_data_from_tsv()
+
+    unzip_data_task >> extract_data_from_tsv_task
+
+
 
     @task(task_id="extract_data_from_fixed_width")
     def extract_data_from_fixed_width():
         # This task should extract the fields Type of Payment code, and Vehicle Code from the fixed width file payment-data.txt and save it into a file named fixed_width_data.csv.
+        pandas.read_fwf("payment-data.txt")
+
+    extract_data_from_fixed_width = extract_data_from_fixed_width()
+
+    unzip_data_task >> extract_data_from_fixed_width
+
+
 
     @task(task_id="consolidate_data")
     def consolidate_data():
@@ -61,6 +136,8 @@ with DAG(
         # The above command merges the columns of the files file1 and file2 and sends the output to newfile.
         #
         # You can use the command `man paste` to explore more.
+        #
+        # For now, you can trust the rows all correspond to the same data. You can also join on Row ID.
 
 
 
