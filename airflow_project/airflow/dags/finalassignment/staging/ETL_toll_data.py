@@ -48,18 +48,20 @@ with DAG(
         Vehicle code - Category of the vehicle as per the toll plaza.
 
         """
+        all_columns = ["row_id", "timestamp", "anonymized_vehicle_number", "vehicle_type", "number_of_axles", "vehicle_code"]
+        desired_columns = ["row_id", "timestamp","anonymized_vehicle_number", "vehicle_type"]
         # Option 1
         csv_df = pandas.read_csv("vehicle-data.csv", header=None)
         desired_columns_df = csv_df[[0, 1, 2, 3]]
-        desired_columns_df.to_csv("csv_data.csv", index=False, header=["row_id", "timestamp","anonymized_vehicle_number", "vehicle_type"])
+        desired_columns_df.to_csv("csv_data.csv", index=False, header=desired_columns)
 
         # Option 2
-        # csv_df = pandas.read_csv("vehicle-data.csv", header=None, names=["row_id", "timestamp", "anonymized_vehicle_number", "vehicle_type", "number_of_axles", "vehicle_code"])
-        # csv_df.to_csv("csv_data.csv", index=False, columns=["row_id", "timestamp", "anonymized_vehicle_number", "vehicle_type"])
+        # csv_df = pandas.read_csv("vehicle-data.csv", header=None, names=all_columns)
+        # csv_df.to_csv("csv_data.csv", index=False, columns=desired_columns)
 
         # Option 3
-        # csv_df = pandas.read_csv("vehicle-data.csv", header=None, names=["row_id", "timestamp", "anonymized_vehicle_number", "vehicle_type", "number_of_axles", "vehicle_code"])
-        # desired_columns_df = csv_df[["row_id", "timestamp", "anonymized_vehicle_number", "vehicle_type"]]
+        # csv_df = pandas.read_csv("vehicle-data.csv", header=None, names=all_columns)
+        # desired_columns_df = csv_df[desired_columns]
         # desired_columns_df.to_csv("csv_data.csv", index=False)
 
     extract_data_from_csv_task = extract_data_from_csv()
@@ -85,18 +87,20 @@ with DAG(
         Tollplaza code - Tollplaza accounting code.
 
         """
+        all_columns = ["row_id", "timestamp", "anonymized_vehicle_number", "vehicle_type", "number_of_axles", "tollplaza_id","tollplaza_code"]
+        desired_columns = ["number_of_axles", "tollplaza_id","tollplaza_code"]
         # Option 1
         tsv_df = pandas.read_table("tollplaza-data.tsv", header=None)
         desired_columns_df = tsv_df[[4, 5, 6]]
-        desired_columns_df.to_csv("tsv_data.csv", index=False, header=["number_of_axles", "tollplaza_id","tollplaza_code"])
+        desired_columns_df.to_csv("tsv_data.csv", index=False, header=desired_columns)
 
         # Option 2
-        # tsv_df = pandas.read_table("tollplaza-data.tsv", header=None, names=["row_id", "timestamp", "anonymized_vehicle_number", "vehicle_type", "number_of_axles", "tollplaza_id","tollplaza_code"])
-        # tsv_df.to_csv("tsv_data.csv", index=False, columns=["number_of_axles", "tollplaza_id","tollplaza_code"])
+        # tsv_df = pandas.read_table("tollplaza-data.tsv", header=None, names=all_columns)
+        # tsv_df.to_csv("tsv_data.csv", index=False, columns=desired_columns)
 
         # Option 3
-        # tsv_df = pandas.read_table("tollplaza-data.tsv", header=None, names=["row_id", "timestamp", "anonymized_vehicle_number", "vehicle_type", "number_of_axles", "tollplaza_id","tollplaza_code"])
-        # desired_columns_df = tsv_df[["number_of_axles", "tollplaza_id","tollplaza_code""]]
+        # tsv_df = pandas.read_table("tollplaza-data.tsv", header=None, names=all_columns)
+        # desired_columns_df = tsv_df[desired_columns]
         # desired_columns_df.to_csv("tsv_data.csv", index=False)
 
     extract_data_from_tsv_task = extract_data_from_tsv()
