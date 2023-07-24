@@ -209,6 +209,10 @@ with DAG(
         """
         This task should transform the vehicle_type field in extracted_data.csv into capital letters and save it into a file named transformed_data.csv in the staging directory.
         """
+        extracted_data_df = pandas.read_csv("extracted_data.csv")
+        extracted_data_df['vehicle_type'] = extracted_data_df['vehicle_type'].apply(str.upper)
+        extracted_data_df.to_csv("transform_data.csv", index=False)
+
 
     # DAG dependencies
     """
