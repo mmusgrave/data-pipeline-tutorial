@@ -182,6 +182,14 @@ with DAG(
 
         For now, you can trust the rows all correspond to the same data. You can also join on Row ID.
         """
+        desired_vehicle_columns_df = pandas.read_csv("csv_data.csv")
+        desired_tollplaza_columns_df = pandas.read_csv("tsv_data.csv")
+        desired_payment_columns_df = pandas.read_csv("fixed_width_data.csv")
+
+        all_desired_dfs = [desired_vehicle_columns_df, desired_tollplaza_columns_df, desired_payment_columns_df]
+        combined_dfs = pandas.concat(all_desired_dfs, axis=1) # axis=1 means combining along the horizontal columns (axis=0 combines along the vertical row indices)
+        combined_dfs.to_csv("extracted_data.csv", index=False)
+
 
 
     # DAG dependencies
