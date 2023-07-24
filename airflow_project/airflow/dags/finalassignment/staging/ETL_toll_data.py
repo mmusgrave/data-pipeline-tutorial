@@ -2,8 +2,11 @@ import logging
 import shutil
 import pandas
 
+from datetime import timedelta
+
 from airflow import DAG
 from airflow.decorators import task
+from airflow.utils.dates import days_ago
 
 log = logging.getLogger(__name__)
 
@@ -190,6 +193,7 @@ with DAG(
         combined_dfs = pandas.concat(all_desired_dfs, axis=1) # axis=1 means combining along the horizontal columns (axis=0 combines along the vertical row indices)
         combined_dfs.to_csv("extracted_data.csv", index=False)
 
+    consolidate_data_task = consolidate_data()
 
 
     # DAG dependencies
