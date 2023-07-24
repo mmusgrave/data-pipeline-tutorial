@@ -142,7 +142,7 @@ with DAG(
         # fixed_width_payment_df = pandas.read_fwf("payment-data.txt", colspecs=colspecs, header=None, names=all_columns)
         # fixed_width_payment_df.to_csv("fixed_width_data.csv", index=False, columns=desired_columns)
 
-    extract_data_from_fixed_width = extract_data_from_fixed_width()
+    extract_data_from_fixed_width_task = extract_data_from_fixed_width()
 
 
     # DAG dependencies
@@ -154,7 +154,7 @@ with DAG(
 
     unzip_data_task >> extract_data_from_tsv_task
 
-    unzip_data_task >> extract_data_from_fixed_width
+    unzip_data_task >> extract_data_from_fixed_width_task
 
 
 
@@ -197,11 +197,11 @@ with DAG(
     Establish second layer of DAG dependencies
     All data must be extracted and put into CSVs before it is consolidated
     """
-    extract_data_from_csv_task >> consolidate_data
+    extract_data_from_csv_task >> consolidate_data_task
 
-    extract_data_from_tsv_task >> consolidate_data
+    extract_data_from_tsv_task >> consolidate_data_task
 
-    extract_data_from_fixed_width >> consolidate_data
+    extract_data_from_fixed_width_task >> consolidate_data_task
 
 
     @task(task_id="transform_data")
@@ -213,10 +213,12 @@ with DAG(
         extracted_data_df['vehicle_type'] = extracted_data_df['vehicle_type'].apply(str.upper)
         extracted_data_df.to_csv("transform_data.csv", index=False)
 
+    transform_data_task = transform_data()
+
 
     # DAG dependencies
     """
     Establish final DAG dependency
     All data must be consolidated before it is finally transformed
     """
-    consolidate_data >> transform_data
+    consolidate_data_task >> transform_data_task
